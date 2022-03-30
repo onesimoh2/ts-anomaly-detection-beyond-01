@@ -4,7 +4,7 @@ import os
 from datetime import date
 from functools import wraps
 
-def GetCsvFromBlob(csvN):
+def get_csv_from_blob(csvN):
     ############# Read the csv ###########################  
     df = pd.read_csv('data/' + csvN) 
     return df
@@ -25,14 +25,15 @@ def singleton(orig_cls):
 @singleton
 class DateUtils():
     inidate = date(1900,1,1)
-    def calcDay(endDat):
-        iniDat = DateUtils.inidate
+    def calc_day(end_dat):  # returns the number of days from the initial date
+        ini_dat = DateUtils.inidate
         #iniDat = date(1986,1,1)
         #iniDat = date(2001,1,1)
-        dateend = endDat.date()
-        return (dateend-iniDat).days
+        dateend = end_dat.date()
+        return (dateend-ini_dat).days
 
-    def calcorderFromDay(endDat):
-        dayNum = DateUtils.calcDay(endDat)
-        ordSec = dayNum / 30.4
-        return int(round(ordSec))
+# returns the secuential position of the data point assuming it is a monthly data
+    def calc_monthly_order_from_day(end_dat): 
+        day_num = DateUtils.calc_day(end_dat)
+        pos_sec = day_num / 30.4
+        return int(round(pos_sec))
