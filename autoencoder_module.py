@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader, Subset
 from utilities import DateUtils
 from fft_functions import fourier_extrapolation, fourierPrediction
+import matplotlib.pyplot as plt
 # te way to install pytorch is: pip install torch==1.10.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
 
 class FeatureDatasetFromDf(Dataset):
@@ -33,8 +34,14 @@ class FeatureDatasetFromDf(Dataset):
 
 
         forcastVals, restored_sig, trend = fourierPrediction(x, self.x_freqdom, self.f, self.p, self.indexes, self.n_train, columns_names)
-        nDfLast = DateUtils.calcDay(x[dateName].iloc[-1]) 
-        nDf1 = int(round(nDfLast * 0.033115)) #int(nDf*0.066)
+        
+        axFFT = plt.axes()
+        tt = np.arange(0, len(trend))
+        axFFT.plot(tt, np.abs(trend))
+        axFFT.plot(tt, np.abs(restored_sig))
+        plt.show()        
+        #nDfLast = DateUtils.calc_day(x[dateName].iloc[-1]) 
+        #nDf1 = int(round(nDfLast * 0.033115)) #int(nDf*0.066)
         nDf1 = n_df
         #biasRand = [xrand_position[DateUtils.calcorderFromDay(item)] for item in x[dateName]]
         
@@ -46,10 +53,10 @@ class FeatureDatasetFromDf(Dataset):
                      
         
         #forcastValsR = np.array(forcastVals).reshape(-1, 1)
-        trendR = np.array(trend).reshape(-1, 1)
+        trend_reshape = np.array(trend).reshape(-1, 1)
         stationary = np.array(restored_sig).reshape(-1, 1)
         
-        self.x_train = np.append(self.x_train, trendR, axis=1)
+        self.x_train = np.append(self.x_train, trend_reshape, axis=1)
         self.x_train = np.append(self.x_train, stationary, axis=1)
 
         if(fit_dat == 'true'):            
