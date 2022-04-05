@@ -4,4 +4,5 @@ from datetime import date, datetime
 
 catfich_1986_2001(False)
 
+
 # te way to install pytorch is: pip install torch==1.10.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
