@@ -37,3 +37,15 @@ class DateUtils():
         day_num = DateUtils.calc_day(end_dat)
         pos_sec = day_num / 30.4
         return int(round(pos_sec))
+
+def variance(data):
+    # Number of observations
+    n = len(data)
+    # Mean of the data
+    mean = sum(data) / n
+    # Square deviations
+    deviations = [(x - mean) ** 2 for x in data]
+    # Variance
+    variance = sum(deviations) / n
+    sig = np.sqrt(variance)
+    return mean, variance, sig

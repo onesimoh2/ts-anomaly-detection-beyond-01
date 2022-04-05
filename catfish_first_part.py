@@ -8,6 +8,7 @@ from statistics import mean, median
 from sklearn.preprocessing import MinMaxScaler
 from fft_functions import fourier_extrapolation
 from autoencoder_module import FeatureDatasetFromDf, autoencoder
+from torch.utils.data import DataLoader, Subset
 
 
 
@@ -63,7 +64,7 @@ def catfich_1986_2001(train_test) :
     #print(xrandPosition)
     scaler = MinMaxScaler()
     n_df = len(train_db)
-    train_split = FeatureDatasetFromDf(train_db, scaler, 'true', COLUMN_NAMES, DATE_COLUMN_NAME, 1, n_df, xrandPosition)
+    train_split = FeatureDatasetFromDf(train_db, scaler, 'true', COLUMN_NAMES, DATE_COLUMN_NAME, 1, n_df)
     ipos = train_split.iPos
     extrpl, x_freqdom, f, p, indexes, n_train = train_split.extrpl, train_split.x_freqdom, train_split.f, train_split.p, train_split.indexes, train_split.n_train
 
@@ -71,15 +72,71 @@ def catfich_1986_2001(train_test) :
         test_split = FeatureDatasetFromDf(test_db, scaler, 'false', COLUMN_NAMES, DATE_COLUMN_NAME, ipos, n_df, extrpl, x_freqdom, f, p, indexes, n_train)
         ipos = test_split.iPos
 
+ 
     MAX_TRAINING_LOSS_VAR =  3.0 #number of sigmas to consider anomaly
-    #LAYER_REDUCTION_FACTOR = 1.6 #how much each leyer of the autoencoder decrease
-    LAYER_REDUCTION_FACTOR = 1.2 #how much each leyer of the autoencoder decrease
+    LAYER_REDUCTION_FACTOR = 1.6 #how much each leyer of the autoencoder decrease
+    #LAYER_REDUCTION_FACTOR = 1.2 #how much each leyer of the autoencoder decrease
     BATCH_SIZE = int(len(train_db)/10) 
     
+    data_loader = DataLoader(train_split, batch_size=BATCH_SIZE, shuffle=False)
 
     number_of_features = int(train_split.X_train.size(dim=1))
 
     model = autoencoder(epochs = 500, batchSize = BATCH_SIZE, number_of_features = number_of_features, layer_reduction_factor = LAYER_REDUCTION_FACTOR,  seed = seed)
+
+    ################# TRAIN #############################################
+    if train_test:
+        max_training_loss, train_ave, validate_ave, last_epoch_individual_loss = model.train_validate(data_loader, test_split, MAX_TRAINING_LOSS_VAR)
+        fig1 = plt.figure()
+        ax1 = plt.axes()
+        epoch1 = []
+        i = 1
+        for item in train_ave:
+            epoch1.append(i)
+            i += 1
+        ax1.plot(epoch1, train_ave, validate_ave)
+        plt.show()
+        fig2 = plt.figure()
+        ax2 = plt.axes()
+        plt.hist(last_epoch_individual_loss)
+        plt.show()
+
+    else:
+        max_training_loss, train_ave = model.train_only(data_loader, MAX_TRAINING_LOSS_VAR)
+        fig1 = plt.figure()
+        ax1 = plt.axes()
+        epoch1 = []
+        i = 1
+        for item in train_ave:
+            epoch1.append(i)
+            i += 1
+        ax1.plot(epoch1, train_ave)
+        plt.show()
+
+
+    #################### EXECUTE ########################################
+    index_df = pd.DataFrame()
+    #evaluate_file = GetCsvFromBlob('TimeSerieByAc01.csv')
+    evaluate_file = new_data
+    anomaly_file_ds = FeatureDatasetFromDf(evaluate_file, scaler, 'false',COLUMN_NAMES, DATE_COLUMN_NAME, ipos, n_df, extrpl, x_freqdom, f, p, indexes, n_train)        
+
+    index_df.insert(0,'ID123',evaluate_file.index)   
+
+    original_file_anomalies = evaluate_file.loc[evaluate_file.index.isin(index_df['ID123']-1)]
+
+    model.eval()
+    detected_anomalies1, pcent_anomalies_detected1, test_loss1 = model.execute_evaluate(anomaly_file_ds, max_training_loss, index_df)
+
+    df_detected_anomalies1 = pd.DataFrame(detected_anomalies1, columns=['loss_val', 'indx'])
+    original_file_anomalies_df = pd.DataFrame()
+    original_file_anomalies=  []
+    for itemAnom in detected_anomalies1:
+        indx = int(itemAnom[1])
+        original_file_anomalies.append(evaluate_file.loc[indx,:])
+    original_file_anomalies_df = pd.DataFrame(original_file_anomalies)
+    original_file_anomalies_df.to_csv('C:/Users/ecbey/Downloads/original_file_anomalies_df.csv')  
+
+
 
 
 
