@@ -10,7 +10,7 @@ When using a Recurrent Neural Network (RNN) you must provide the network with se
 
 ## THE FAST FOURIER TRANSFORM
 
-All these those uses of sines and cosines suggest concepts derived from the Fourier Series. All functions of a variable, whether continuous or not, can be expanded in a series of sinusoidal functions of multiples of the variable. The Fast Fourier Transform FFT (4) is an algorithm that you can apply to decompose a time series in a sequence of complex coefficients representing different frequencies and amplitudes (this is typically known as moving from the time domain to the frequency domain). Once you have the coefficients you can, for example, filter them to filter those frequencies representing noise and then compose them back to obtain the original signal without the noise.
+The utilization  of sines and cosines suggest concepts derived from the Fourier Series. All functions of a variable, whether continuous or not, can be expanded in a series of sinusoidal functions of multiples of the variable. The Fast Fourier Transform FFT (4) is an algorithm that you can apply to decompose a time series in a sequence of complex coefficients representing different frequencies and amplitudes (this is typically known as moving from the time domain to the frequency domain). Once you have the coefficients you can, for example, filter those frequencies representing noise and then compose them back to obtain the original signal without the noise.
 
 
 ![image](data/catfishtotaldata.gif)
