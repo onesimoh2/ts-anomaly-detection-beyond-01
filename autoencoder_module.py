@@ -244,8 +244,8 @@ class autoencoder(nn.Module):
 
                 indx1 = index_df.iloc[[indx], [0]]
                 print('test_loss=', test_loss, ' Indx=', indx)
-                if(176 == int(indx1['ID123'])):
-                     print('176 test_loss=', test_loss, ' Indx=', indx)
+                # if(176 == int(indx1['ID123'])):
+                #      print('176 test_loss=', test_loss, ' Indx=', indx)
                 if test_loss > (1 * max_training_loss) :                    
                     item = [test_loss, int(indx1['ID123'])]
                     detected_anomalies.append(item)

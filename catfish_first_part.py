@@ -56,7 +56,7 @@ def catfich_1986_2001(train_test) :
         ax_fish.plot(original_data['Date'], original_data['Total'])
         plt.show()
         train_db = original_data #first part all data
-        new_data.loc[176, ['Total']] = 15000 #first part anomaly
+        new_data.loc[176, ['Total']] = 10000 #first part anomaly
 
     seed = int(median(list(train_db['Total'])))      
     np.random.seed(seed)
