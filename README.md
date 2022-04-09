@@ -1,4 +1,4 @@
-# Anomaly Detection in Univariate Time Series Using Fourier Transform and Autoencoders in Python and PyTorch
+# Anomaly Detection for Univariate Time Series Using Fourier Transform and Autoencoders in Python and PyTorch
 
 ## ABSTRACT
 
@@ -36,3 +36,16 @@ In (6) the author posed a challenge; finding a manual generated anomaly in a dat
 As proposed in the article (6) we are only going to use data from 1968 to 2000. Also, an anomaly will be inserted in 9/1/2000 (a 10000 value), the selected data including the generated anomaly looks like this:
 
 ![image](data/catfishfirstpart.png)
+
+The challenge of the algorithm is to try to catch the value of 10000 as the anomaly. Following is a sample of the original data:
+
+
+![image](data/datasampl.png)
+
+In (6) the author posed a challenge; finding a manual generated anomaly in a data set (named catfish.csv) containing a monthly time series, following there is a graph of all the data: 
+The data is divided into a training set, from 1986 to 1999, and a validation one containing only the year 2000 which will be used as the new data to be given to the model to detect the anomaly. The provided code contains a variant to also extract a testing set. The problem with not using a testing set is that we do not have a way to validate if the algorithm is performing well (decreasing the loss and not overfitting) but using a testing set will remove from training important data, specially from the last months of the time series that, in many cases are critical so, for this example no testing set was used. 
+
+This data is given to the autoencoder that will be trained for 500 iterations (epochs) with batch size 16, this batch size is calculated using a formula. The following is the graph showing the reduction of the loss in the training set:
+After using FFT to calculate complex parameters, nonlinear trends and data showing stationary patterns are calculated. The following is a graph of the calculated nonlinear trend and the data representing stationarity. 
+
+
