@@ -7,7 +7,6 @@ from torch.utils.data import DataLoader, Subset
 from utilities import DateUtils, variance
 from fft_functions import fourier_extrapolation, fourierPrediction
 import matplotlib.pyplot as plt
-# te way to install pytorch is: pip install torch==1.10.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
 
 class FeatureDatasetFromDf(Dataset):
 
