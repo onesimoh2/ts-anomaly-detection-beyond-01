@@ -63,8 +63,10 @@ As seen the algorithm correctly detected the anomaly inserted. The autoencoder, 
 
 ## CONCLUSION
 
-The transformers (3) popularized the notion that positions of items in a series can be expressed by adding information, to the original data, from a continuous function that depends on the order of the item in the sequence. They used a clever combination of sines and cosines, Gregg (2) seams to apply this concept to time series prediction. We tried similar approaches with unsatisfactory results until introduce FFT in the way described.
+The transformers (3) popularized the notion that positions of items in a series can be expressed by adding information, to the original data, from a continuous function that depends on the order of the item in the sequence. They used a clever combination of sines and cosines, Gregg (2) seams to apply this concept to time series prediction. Similar approaches were tried with unsatisfactory results until FFT was introduced in the way described above.
+
 There are still some challenges to further investigate. Typically, you train the autoencoder using only good data, since in the practice anomalies can be present in the training set the widespread practice is to remove them but, if we do that, we create non existing points that could affect the FFT. The code try to solve this by extrapolating the missing data.
+
 Also, additional work should be done to see if this method can be generalized to multivariate time series.
 
 ## NOTES
