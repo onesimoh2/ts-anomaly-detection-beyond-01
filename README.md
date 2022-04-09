@@ -32,3 +32,7 @@ In (6) the author posed a challenge; finding a manual generated anomaly in a dat
 
 
 ![image](data/catfishtotaldata.gif)
+
+As proposed in the article (6) we are only going to use data from 1968 to 2000. Also, an anomaly will be inserted in 9/1/2000 (a 10000 value), the selected data including the generated anomaly looks like this:
+
+![image](data/catfish_first_part.jpg)
