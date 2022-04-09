@@ -108,6 +108,7 @@ No further explanation will be added here since it can be found inside the code.
 ## REFERENCES
 
 1- A Guide to RNN: Understanding Recurrent Neural Networks and LSTM Network. Niklas Donges. 2021. https://builtin.com/data-science/recurrent-neural-networks-and-lstm
+
 2- Multivariate Time Series Forecasting Using LSTM, GRU & 1d CNNs. Greg Hogg. 2021. https://www.youtube.com/watch?v=kGdbPnMCdOg  
 
 3- Attention Is All You Need. Ashish Vaswani.2 017. file:///C:/Users/ecbey/OneDrive/NY%202012/Documents/AttentionAllNeed.pdf 
