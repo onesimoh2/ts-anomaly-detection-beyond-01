@@ -27,7 +27,7 @@ These calculated data will be added as new columns: first column the original da
 This data is then given io an autoencoder with the decoder part containing four input nodes, the compressed layer containing two nodes and the decoder reconstructing the data back to four nodes. It is expected that the autoencoder will determine the pattern provided by these elements for those entries considered normal, so this can later be used to determine anomalies. 
 Once the model is calculated, together with the FFT coefficients, it is used later on to determine when new incoming data can be considered an anomaly. For that, during training, in the last epoch the mean and variance of the losses are calculated, then during evaluation losses found over 3 standard deviations from the mean are considered anomalies 
 
-THE EXAMPLE
+## THE EXAMPLE
 In (6) the author posed a challenge; finding a manual generated anomaly in a data set named catfish.csv containing a monthly time series, following there is a graph of all the data contained in the catfish.csv:
 
 
@@ -60,6 +60,65 @@ Finally, when the validation set is given to the autoencoder it provides the fol
 ![image](data/anomoly.png)
 
 As seen the algorithm correctly detected the anomaly inserted. The autoencoder, while not deep, seems to learn the characteristics of the time series and in spite that the 10000 (or similar one) was present in the data during training, it flags it as an anomaly. 
+
+## CONCLUSION
+
+The transformers (3) popularized the notion that positions of items in a series can be expressed by adding information, to the original data, from a continuous function that depends on the order of the item in the sequence. They used a clever combination of sines and cosines, Gregg (2) seams to apply this concept to time series prediction. We tried similar approaches with unsatisfactory results until introduce FFT in the way described.
+There are still some challenges to further investigate. Typically, you train the autoencoder using only good data, since in the practice anomalies can be present in the training set the widespread practice is to remove them but, if we do that, we create non existing points that could affect the FFT. The code try to solve this by extrapolating the missing data.
+Also, additional work should be done to see if this method can be generalized to multivariate time series.
+
+## NOTES
+Like all Machine Learning projects, tuning the hyperparameters is key to success. After many trials, the hyperparameter values were defined. Many of them have been summarized with formulas using the features of the time series to reach acceptable values, whether these formulas will hold for different time series is something to be determined in the future. This also includes FFT algorithm hyperparameters. In the code some tests have been commented so that the reader can have an idea of some of the different options that have been tried
+
+ 
+One of them was very frustrating, defining the random seeds. This is not usually analyzed in papers, but it seems to have a huge impact in the training process. The only paper found discussing this topic was (7). According to this paper It looks that many projects do a great deal of tweaking on that value without properly discussing it. The purpose here is not to support this thesis, but to recognize that this was particularly important for this project. Finally, after many trials, a formula was developed that seems to work well in determining the random seeds. 
+
+
+## CODE DESCRIPTION
+
+The program contains the following modules:
+
+### app.py 
+This is the starting point of the application; it simply calls the execution contained in the following module.
+
+### catfish_first_part.py 
+This is the main program containing the parts to download the csv file, selecting the first part of the time series, create the data frames and the data loaders, defining the autoencoder, training the model and finally execute the model to find the anomalies. In the future we will add ‘catfich_all’ that is going to be a module to analyze the whole catfish time series and ‘catfish_last_part’ to do the same with the last part of the series.
+
+### autoencoder_module.py 
+Contain the classes to create the data loaders and the autoencoder. This last contains functions to define the autoencoder, train the autoencoder and execute the trained model.
+
+### fft_functions.py 
+Contains the functions to perform the FFT and later reconstruct the series from its complex coefficients. The first function basically calculates the coefficients and the second uses those coefficients to extrapolate the series. This code is a variation of the code described in (5).
+
+### utilities.py 
+This module contains auxiliary functions that potentially could be used by the rest of the modules.
+
+In addition the program contains the data folder where the actual csv of the time series is stored, this folder also keeps the images used in the readme.md file.
+
+Other modules dependencies are self-defined by the import statements. 
+
+No further explanation will be added here since it can be found inside the code.
+
+
+
+
+
+## REFERENCES
+
+1- A Guide to RNN: Understanding Recurrent Neural Networks and LSTM Network. Niklas Donges. 2021. https://builtin.com/data-science/recurrent-neural-networks-and-lstm
+2- Multivariate Time Series Forecasting Using LSTM, GRU & 1d CNNs. Greg Hogg. 2021. https://www.youtube.com/watch?v=kGdbPnMCdOg  
+
+3- Attention Is All You Need. Ashish Vaswani.2 017. file:///C:/Users/ecbey/OneDrive/NY%202012/Documents/AttentionAllNeed.pdf 
+
+4- Discrete Fourier Transform (numpy.fft) — NumPy v1.22 Manual  
+
+5- Fourier Extrapolation in Python. Artem Tartakynov. 2015. https://gist.github.com/tartakynov/83f3cd8f44208a1856ce
+
+6- Time-Series-Analysis-1/Anomaly Detection. Anh Nguyen https://github.com/anhnguyendepocen/Time-Series-Analysis-1 
+
+7- torch.manual seed(3407) is all you need: On the influence of random seeds in deep learning architectures for computer vision. David Picard. 2021.
+
+
 
 
 
