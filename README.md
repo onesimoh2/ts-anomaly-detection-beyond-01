@@ -48,4 +48,20 @@ The data is divided into a training set, from 1986 to 1999, and a validation one
 This data is given to the autoencoder that will be trained for 500 iterations (epochs) with batch size 16, this batch size is calculated using a formula. The following is the graph showing the reduction of the loss in the training set:
 After using FFT to calculate complex parameters, nonlinear trends and data showing stationary patterns are calculated. The following is a graph of the calculated nonlinear trend and the data representing stationarity. 
 
+![image](data/trainstat.png)
+
+The task of the autoencoder is trying to learn the trend and stationary pattern from this data.  
+The following is the graph showing the reduction in the loss in the training set: 
+
+![image](data/trainloss.png)
+
+Finally, when the validation set is given to the autoencoder it provides the following results: 
+
+![image](data/anomoly.png)
+
+As seen the algorithm correctly detected the anomaly inserted. The autoencoder, while not deep, seems to learn the characteristics of the time series and in spite that the 10000 (or similar one) was present in the data during training, it flags it as an anomaly. 
+
+
+
+
 
