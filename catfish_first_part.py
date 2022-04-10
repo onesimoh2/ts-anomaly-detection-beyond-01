@@ -29,20 +29,21 @@ def catfich_1986_2001(train_test) :
     #define if there will be a train and test segmentation of the data
     TRAIN_TEST = True
 
-    ############ first part of the time series ##################################
+    ############ first part of the time series from 1986 to 2000 ##################################
     DATA_FROM = date(1986,1,1) 
     DATA_TO = date(2001,1,1)
 
     DateUtils.inidate = DATA_FROM #define the initial date
 
-    #data extraction
+    # data extraction
     original_data = db[(db.Date < datetime(DATA_TO.year - 1, DATA_TO.month, DATA_TO.day)) & (db.Date >= datetime(DATA_FROM.year, DATA_FROM.month, DATA_FROM.day))]
-    #last part of the serie will be used as it were the new data where we are going to detect anomalies
+    #The last year of the series will be used as it were the new data used to detect anomalies 
     new_data = db[(db.Date < datetime(DATA_TO.year, DATA_TO.month, DATA_TO.day)) & (db.Date >= datetime(DATA_TO.year - 1, DATA_TO.month, DATA_TO.day))]
 
     
-
+    
     if train_test:
+        # select train and test and introduce the anomaly value
         new_data.loc[176, ['Total']] = 15000 #introducing anomaly
         fig_ish = plt.figure()
         ax_fish = plt.axes()
@@ -50,18 +51,19 @@ def catfich_1986_2001(train_test) :
         plt.show()
         train_db, test_db = train_test_split(original_data, test_size=0.05, shuffle=False)
     else:
-        
+        # select only train and introduce the anomaly value
         fig_ish = plt.figure()
         ax_fish = plt.axes()
         ax_fish.plot(original_data['Date'], original_data['Total'])
         plt.show()
         train_db = original_data #first part all data
-        new_data.loc[176, ['Total']] = 10000 #first part anomaly
+        new_data.loc[176, ['Total']] = 10000 #introducing anomaly
 
+    # defining the random seed
     seed = int(median(list(train_db['Total'])))      
     np.random.seed(seed)
-    xrandPosition = np.random.rand(500)
-    #print(xrandPosition)
+
+    #define the train dataset
     scaler = MinMaxScaler()
     n_df = len(train_db)
     train_split = FeatureDatasetFromDf(train_db, scaler, 'true', COLUMN_NAMES, DATE_COLUMN_NAME, 1, n_df)
@@ -69,19 +71,22 @@ def catfich_1986_2001(train_test) :
     extrpl, x_freqdom, f, p, indexes, n_train = train_split.extrpl, train_split.x_freqdom, train_split.f, train_split.p, train_split.indexes, train_split.n_train
 
     if train_test:
+        # define the test data set
         test_split = FeatureDatasetFromDf(test_db, scaler, 'false', COLUMN_NAMES, DATE_COLUMN_NAME, ipos, n_df, extrpl, x_freqdom, f, p, indexes, n_train)
         ipos = test_split.iPos
 
  
-    MAX_TRAINING_LOSS_VAR =  3.0 #number of sigmas to consider anomaly
-    LAYER_REDUCTION_FACTOR = 1.6 #how much each leyer of the autoencoder decrease
-    #LAYER_REDUCTION_FACTOR = 1.2 #how much each leyer of the autoencoder decrease
+    MAX_TRAINING_LOSS_VAR =  3.0 #number of sigmas from the mean to consider a value is an anomaly
+    LAYER_REDUCTION_FACTOR = 1.6 #how much each layer of the autoencoder decreases 
+    #LAYER_REDUCTION_FACTOR = 1.2 #how much each layer of the autoencoder decreases 
     BATCH_SIZE = int(len(train_db)/10) 
     
+    # create the data loader for testing
     data_loader = DataLoader(train_split, batch_size=BATCH_SIZE, shuffle=False)
 
     number_of_features = int(train_split.X_train.size(dim=1))
 
+    # create the model for the autoencoder
     model = autoencoder(epochs = 500, batchSize = BATCH_SIZE, number_of_features = number_of_features, layer_reduction_factor = LAYER_REDUCTION_FACTOR,  seed = seed)
 
     ################# TRAIN #############################################
@@ -116,7 +121,7 @@ def catfich_1986_2001(train_test) :
 
     #################### EXECUTE ########################################
     index_df = pd.DataFrame()
-    #evaluate_file = GetCsvFromBlob('TimeSerieByAc01.csv')
+
     evaluate_file = new_data
     anomaly_file_ds = FeatureDatasetFromDf(evaluate_file, scaler, 'false',COLUMN_NAMES, DATE_COLUMN_NAME, ipos, n_df, extrpl, x_freqdom, f, p, indexes, n_train)        
 

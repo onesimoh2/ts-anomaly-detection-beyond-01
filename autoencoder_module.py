@@ -27,11 +27,12 @@ class FeatureDatasetFromDf(Dataset):
         self.iPos = ser_pos
         self.x_train = np.array(x[columns_names].values)
         if(fit_dat == 'true'):
+            # create the complex coefficients and the rest of the required parameters 
             x_in = df[columns_names].values.flatten()           
             self.extrpl, self.x_freqdom, self.f, self.p, self.indexes, self.n_train = fourier_extrapolation(x_in, 0)
 
 
-
+        # use the coefficients and the rest of the parameters to calculate the nonlinear tend and the seasonality part 
         forcastVals, restored_sig, trend = fourierPrediction(x, self.x_freqdom, self.f, self.p, self.indexes, self.n_train, columns_names)
         
         axFFT = plt.axes()
@@ -53,10 +54,10 @@ class FeatureDatasetFromDf(Dataset):
         
         #forcastValsR = np.array(forcastVals).reshape(-1, 1)
         trend_reshape = np.array(trend).reshape(-1, 1)
-        stationary = np.array(restored_sig).reshape(-1, 1)
+        seasonal_part = np.array(restored_sig).reshape(-1, 1)
         
         self.x_train = np.append(self.x_train, trend_reshape, axis=1)
-        self.x_train = np.append(self.x_train, stationary, axis=1)
+        self.x_train = np.append(self.x_train, seasonal_part, axis=1)
 
         if(fit_dat == 'true'):            
             self.x_train[:,[0,1,2]] = scaler.fit_transform(self.x_train[:,[0,1,2]].reshape(-1, 3)).reshape(-1, 3)            
@@ -68,7 +69,7 @@ class FeatureDatasetFromDf(Dataset):
         data_vs_trend_reshape = np.array(data_vs_trend).reshape(-1, 1)
         self.x_train = np.append(self.x_train, data_vs_trend_reshape, axis=1)
 
-        #x_train have: data, train estimate, stationary estimate and difference between the first two
+        #x_train have; data, train estimate, stationary estimate and difference between the first two 
 
         #trainn.to_csv('C:/Users/ecbey/Downloads/x_train.csv')  
         self.X_train = torch.tensor(self.x_train, dtype=torch.float32)
