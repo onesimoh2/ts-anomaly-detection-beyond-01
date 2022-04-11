@@ -81,6 +81,7 @@ class FeatureDatasetFromDf(Dataset):
         return self.X_train[idx]
 
 
+#definition of all the features for creating a model, training, testing and execution. 
 class autoencoder(nn.Module):
 
     #iitialize weights
@@ -103,6 +104,7 @@ class autoencoder(nn.Module):
         self.weight_decay = weight_decay
         self.layer_reduction_factor = layer_reduction_factor
         self.number_0f_features = number_of_features
+        #defining the structure of the autoencoder, this is a general method that should fit different structure depending on the number of input nodes 
         self.output_features_by_leyers = []
         self.output_features_by_leyers.append(number_of_features)
         self.number_of_last_layer = int(round(number_of_features / 6.0))
@@ -121,7 +123,7 @@ class autoencoder(nn.Module):
 
 
         self.encoder = nn.Sequential()
-
+        #dynamically creating the structure of the autoencoder 
         for iLayer in range(len(self.output_features_by_leyers)-1):
             self.encoder.add_module('L' + str(iLayer), nn.Linear(self.output_features_by_leyers[iLayer], self.output_features_by_leyers[iLayer + 1]))
             if iLayer + 1 < len(self.output_features_by_leyers) - 1:
@@ -230,22 +232,12 @@ class autoencoder(nn.Module):
                 output = self.forward(original)  # model can't use test to learn
                 test_loss = criterion(output, original).data.item()
 
-                #test_loss_list = criterion_no_reduced(output, original)
-                # numCols = original.size(dim=0)
-                # sumAll = 0.0 #calculate individual loss
-                # sumAll = 0.0
-                # for xsqTen in test_loss_list:
-                #     sumAll = sumAll + xsqTen
-
-                # indivAve = float(sumAll/numCols)
-
                 test_epc = test_epc + test_loss
                 test_num = test_num + 1
 
                 indx1 = index_df.iloc[[indx], [0]]
                 print('test_loss=', test_loss, ' Indx=', indx)
-                # if(176 == int(indx1['ID123'])):
-                #      print('176 test_loss=', test_loss, ' Indx=', indx)
+
                 if test_loss > (1 * max_training_loss) :                    
                     item = [test_loss, int(indx1['ID123'])]
                     detected_anomalies.append(item)

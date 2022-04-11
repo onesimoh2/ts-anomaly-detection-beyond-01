@@ -3,6 +3,8 @@ from numpy import fft
 from datetime import date
 from utilities import DateUtils
 
+#these functions were built using the code from:
+#Fourier Extrapolation in Python. Artem Tartakynov. 2015. https://gist.github.com/tartakynov/83f3cd8f44208a1856ce
 
 def fourier_extrapolation(x, n_predict):
     n = x.size
@@ -11,10 +13,10 @@ def fourier_extrapolation(x, n_predict):
     x_notrend = x - p[0] * t        # detrended x
     x_freqdom = fft.fft(x_notrend)  # detrended x in frequency domain
 
-    #number of parameeters of high freq to consider
-    n_param = int(n/10) #I found that this formula provides a good number
+    #number of parameters of high frequency to consider 
+    n_param = int(n/10) #found that this formula provides a good number
     h=np.absolute(np.sort(x_freqdom)[-n_param]) #get the value for the threshold
-    #make 0 all the freqs under the threshold
+    #make 0 all the frequencies under the threshold 
     x_freqdom=[ x_freqdom[i] if np.absolute(x_freqdom[i])>=h else 0 for i in range(len(x_freqdom)) ]
     
     f = fft.fftfreq(n)              # frequencies
@@ -57,7 +59,7 @@ def fourierPrediction(db, x_freqdom, f, p0, indexes, n_train, column_names):
 
     
     restored_sig_for_trend = np.zeros(t.size)
-    # only the first 10 low freqs harmonics eliminates mayority of stationary effect
+    # only the first 10 low frequencies harmonics eliminates majority of stationary effect 
     for i in indexes[:10]:
         if x_freqdom[i] != 0:
             ampli = np.absolute(x_freqdom[i]) / n_train   # amplitude
