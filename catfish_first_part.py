@@ -91,7 +91,7 @@ def catfich_1986_2001(train_test) :
 
     ################# TRAIN #############################################
     if train_test:
-        max_training_loss, train_ave, validate_ave, last_epoch_individual_loss = model.train_validate(data_loader, test_split, MAX_TRAINING_LOSS_VAR)
+        max_training_loss, train_ave, validate_ave, last_epoch_individual_loss = model.train_test(data_loader, test_split, MAX_TRAINING_LOSS_VAR)
         fig1 = plt.figure()
         ax1 = plt.axes()
         epoch1 = []

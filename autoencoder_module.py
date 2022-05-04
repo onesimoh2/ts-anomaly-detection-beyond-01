@@ -216,6 +216,94 @@ class autoencoder(nn.Module):
         return max_training_loss, train_ave
 
 
+    def train_test(self, train_sample, val_sample, max_training_loss_var_num):                               
+        train_ave = []
+        validate_ave = []
+        last_epoch_loss = []
+        last_epoch_individual_loss = []
+        max_training_loss = 0
+        criterionNoReduced = nn.MSELoss(reduction = 'none')
+        #criterionNoReduced = nn.L1Loss(reduction = 'none')
+        
+        for epoch in range(self.epochs):
+            self.train() 
+            train_epc = 0.0
+            train_num = 0.0
+            for data in train_sample:
+                #predict
+                output = self(data)
+                # find loss
+                loss = self.loss(output, data)
+                lossTrainData = loss.data.item()                
+                # perform back propagation
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+                train_epc = train_epc + lossTrainData
+                train_num =  train_num + 1
+                
+                #print(f'epoch {epoch + 1}/{self.epochs}, loss: {loss.data:.4f}')
+                if epoch + 1 == self.epochs:
+                    last_epoch_loss.append(lossTrainData)
+                    test_loss_list = criterionNoReduced(output, data)
+                    numCols = test_loss_list.size(dim=1)
+                    sumAll = 0.0 #calculate individual loss
+                    for xsqTen in test_loss_list:
+                        sumAll = 0.0
+                        for xsq in xsqTen:
+                            sumAll = sumAll + xsq
+
+                        indivAve = float(sumAll/numCols)
+                        last_epoch_individual_loss.append(indivAve)
+
+                    if max_training_loss < lossTrainData:
+                        max_training_loss = lossTrainData
+            epoc_t_ave = train_epc/train_num
+            train_ave.append(float(epoc_t_ave))
+            min_loss = train_epc/train_num
+            print(f'******epoch {epoch + 1}, loss: {train_ave[epoch]:.4f}')
+
+            validate_ave_ret = self.validate(val_sample)
+            validate_ave.append(validate_ave_ret)
+            #self.scheduler.step(min_loss)
+            min_loss_round = round(train_ave[epoch], 4)
+            self.scheduler.step(min_loss_round)
+        #mean, var, sig = self.variance(last_epoch_loss)
+        mean, var, sig = self.variance(last_epoch_individual_loss)
+        max_training_loss = mean +  (max_training_loss_var_num * sig)
+        return max_training_loss, train_ave, validate_ave, last_epoch_individual_loss
+
+
+ 
+    def validate(self, feature_sample):
+        self.eval()
+        #criterion = nn.L1Loss()
+        criterion = nn.MSELoss()
+        
+        indx = 2
+        test_epc = 0.0
+        test_num = 0.0
+
+        with torch.no_grad(): # Run without Autograd
+            for original in feature_sample:
+                output = self.forward(original)  # model can't use test to learn
+                test_loss = criterion(output, original).data.item()
+                test_epc = test_epc + test_loss
+                test_num = test_num + 1
+                #print('test_loss=', test_loss, ' Indx=', indx)
+                #if test_loss >= 0.1 :
+                #    print('          test_loss=', test_loss, ' Indx=', indx)
+                    #pd.DataFrame(original)
+                
+
+                indx = indx + 1
+        test_loss_mean = (test_epc/test_num)
+        #print(f'     Validate_loss: {test_loss_mean:.4f}')
+        return test_loss_mean
+
+
+
+
 
     def execute_evaluate(self, feature_sample, max_training_loss, index_df):
         self.eval()
